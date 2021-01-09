@@ -37,31 +37,21 @@ PS > pip install -r requirements.txt
 Run the server
 --------------
 
+```bash
+python server.py --port 5000 --csvfile results.csv --wavdir /path/to/data 
+```
+
+For a list of options,
+
+```bash
+python server.py --help
+```
+
+
+I've overwritten the default Flask app launcher (`flask run`) and use `argparse` instead, 
+but this can be pulled out if undesired.
+
 There are [several ways to start Flask applications](https://flask.palletsprojects.com/en/1.1.x/quickstart/#a-minimal-application).
-
-**Linux**
-
-```bash
-export FLASK_APP=server.py
-flask run
-```
-
-**Windows command prompt**
-
-```bash
-set FLASK_APP=server.py
-flask run
-```
-
-**Windows PowerShell**
-
-```bash
-PS > $env:FLASK_APP = "server.py"
-PS > flask run
-```
-
-
-You should read the Flask guide for Windows.
 
 (Optional) Compile the frontend
 -------------------------------

@@ -54,12 +54,16 @@ def get_args():
                         help='Port to run the app on',
                         type=int,
                         default=DEFAULT_PORT)
+    parser.add_argument('--ignore-transcripts',
+                        help='Ignore (don\'t require) transcript files',
+                        action='store_true')
     return parser.parse_args()
 
 args = get_args()
 
 CSV_FILENAME = args.csvfile
 WAV_DIRECTORY = args.wavdir
+IGNORE_TRANSCRIPTS = args.ignore_transcripts or False
 
 def get_all_wav_files(directory):
     print('Fetching all wav files. (This is only done once!)')
@@ -98,6 +102,8 @@ def get_transcript(wav_path):
         contents = open(transcript_path, 'r', encoding='utf-8').read().strip()
         return contents
     except Exception as e:
+        if IGNORE_TRANSCRIPTS:
+            return False
         raise e # Optionally do not raise
 
 def determine_if_same_speaker(wav_path_a, wav_path_b):
