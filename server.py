@@ -58,14 +58,14 @@ ALL_WAVS = get_all_wav_files(WAV_DIRECTORY)
 
 def get_speaker_name(wav_path):
     try:
-        parts = wav_path.split('/')
+        parts = wav_path.split(os.path.sep)
         return parts[1]
     except Exception as e:
         raise e # Optionally do not raise
 
 def get_dataset_name(wav_path):
     try:
-        parts = wav_path.split('/')
+        parts = wav_path.split(os.path.sep)
         return parts[0]
     except Exception as e:
         raise e # Optionally do not raise
@@ -74,8 +74,7 @@ def get_transcript(wav_path):
     try:
         transcript_path = wav_path.replace('.wav', '.txt')
         transcript_path = os.path.join(WAV_DIRECTORY, transcript_path)
-        contents = open(transcript_path, 'r', encoding='utf8').read().strip()
-        print(contents)
+        contents = open(transcript_path, 'r', encoding='utf-8').read().strip()
         return contents
     except Exception as e:
         raise e # Optionally do not raise
@@ -123,7 +122,7 @@ def vote():
     same_transcript = 'SAME_TRANSCRIPT' if same_transcript else 'DIFFERENT_TRANSCRIPT'
 
     # NB: This is not threadsafe!
-    with open(FILENAME, 'a') as f:
+    with open(FILENAME, 'a+', newline='', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter='|')
         writer.writerow([
             winner,
@@ -173,7 +172,7 @@ def random_experiment():
 def stats():
     count = 0
     try:
-        with open(FILENAME, 'r') as f:
+        with open(FILENAME, 'r+', encoding='utf-8') as f:
             count = len(f.readlines())
     except Exception as e:
         print('Exception', e)
