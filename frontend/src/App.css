@@ -1,0 +1,40 @@
+.experiment {
+  text-align: center;
+}
+
+.experiment button {
+  font-size: 2.5em;
+  padding: 10px;
+  margin: 25px;
+}
+
+.wav-experiment-container {
+  display: flex;
+}
+
+.experiment-option-container {
+  flex: 1;
+  width: 250px;
+  padding: 2em;
+  margin: 20px;
+}
+
+.wav-file {
+  border: 5px solid #000;
+  background-color: #eee;
+  text-align: center;
+  margin: 0 0 20px;
+}
+
+.filename {
+  padding: 1em;
+  font-weight: bold;
+}
+
+.wav-file.playing {
+  background-color: #ffd;
+}
+
+.wav-file .icon {
+  font-size: 10em;
+}
