@@ -27,9 +27,10 @@ The format of the relative directory tree is as follows:
         - audio_2.txt
 """
 
+import argparse
+import csv
 import os
 import random
-import csv
 
 from flask import Flask, request, send_from_directory, json
 from flask_cors import CORS
@@ -37,8 +38,28 @@ from flask_cors import CORS
 app = Flask(__name__, static_url_path='')
 CORS(app) # NB: Allow-all domains on all paths
 
-FILENAME = 'results.csv'
-WAV_DIRECTORY = 'testdata/wavs'
+DEFAULT_WAV_DIRECTORY = 'testdata/wavs'
+DEFAULT_CSV_FILENAME = 'results.csv'
+DEFAULT_PORT=5000
+
+def get_args():
+    parser = argparse.ArgumentParser(description='Run Audio audio-sample-abtest Server')
+    parser.add_argument('--wavdir',
+                        help='Root directory containing all audio samples',
+                        default=DEFAULT_WAV_DIRECTORY)
+    parser.add_argument('--csvfile',
+                        help='Name of the csv file to store results',
+                        default=DEFAULT_CSV_FILENAME)
+    parser.add_argument('--port',
+                        help='Port to run the app on',
+                        type=int,
+                        default=DEFAULT_PORT)
+    return parser.parse_args()
+
+args = get_args()
+
+CSV_FILENAME = args.csvfile
+WAV_DIRECTORY = args.wavdir
 
 def get_all_wav_files(directory):
     print('Fetching all wav files. (This is only done once!)')
@@ -79,21 +100,21 @@ def get_transcript(wav_path):
     except Exception as e:
         raise e # Optionally do not raise
 
-def determine_if_same_speaker(wav_path_a, wav_path_b): 
+def determine_if_same_speaker(wav_path_a, wav_path_b):
     speaker_a = get_speaker_name(wav_path_a)
     speaker_b = get_speaker_name(wav_path_b)
     return speaker_a == speaker_b
 
-def determine_if_same_dataset(wav_path_a, wav_path_b): 
+def determine_if_same_dataset(wav_path_a, wav_path_b):
     dataset_a = get_dataset_name(wav_path_a)
     dataset_b = get_dataset_name(wav_path_b)
     return dataset_a == dataset_b
 
-def determine_if_same_transcript(wav_path_a, wav_path_b): 
+def determine_if_same_transcript(wav_path_a, wav_path_b):
     transcript_a = get_transcript(wav_path_a)
     transcript_b = get_transcript(wav_path_b)
     return transcript_a == transcript_b
-    
+
 @app.route('/')
 def index():
     return send_from_directory('frontend/build', 'index.html')
@@ -122,7 +143,7 @@ def vote():
     same_transcript = 'SAME_TRANSCRIPT' if same_transcript else 'DIFFERENT_TRANSCRIPT'
 
     # NB: This is not threadsafe!
-    with open(FILENAME, 'a+', newline='', encoding='utf-8') as f:
+    with open(CSV_FILENAME, 'a+', newline='', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter='|')
         writer.writerow([
             winner,
@@ -143,7 +164,7 @@ def random_experiment():
             break
         file_a = random.choice(ALL_WAVS)
         file_b = random.choice(ALL_WAVS)
-    
+
         # Remove this check if you want to compare within the same dataset
         same_dataset = determine_if_same_dataset(file_a, file_b)
 
@@ -172,7 +193,7 @@ def random_experiment():
 def stats():
     count = 0
     try:
-        with open(FILENAME, 'r+', encoding='utf-8') as f:
+        with open(CSV_FILENAME, 'r+', encoding='utf-8') as f:
             count = len(f.readlines())
     except Exception as e:
         print('Exception', e)
@@ -186,3 +207,9 @@ def stats():
         status=200,
         mimetype='application/json',
     )
+
+
+def start_server(args):
+    app.run(host='127.0.0.1', port=args.port, debug=True)
+
+start_server(args)
